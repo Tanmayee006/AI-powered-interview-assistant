@@ -199,6 +199,35 @@ Return ONLY the question text (one clear, specific question), nothing else.`;
     return categoryFallbacks[Math.floor(Math.random() * categoryFallbacks.length)];
   }
 };
+// Decide which category (React/Node) to ask next
+export const getNextCategory = (difficulty, askedQuestions) => {
+  if (difficulty === "Easy") {
+    const reactAsked = askedQuestions.some(q => q.category === "react" && q.difficulty === "Easy");
+    const nodeAsked = askedQuestions.some(q => q.category === "node" && q.difficulty === "Easy");
+
+    if (!reactAsked) return "react"; // First Easy = React
+    if (!nodeAsked) return "node";   // Second Easy = Node
+  }
+
+  // For Medium/Hard → random choice
+  return Math.random() > 0.5 ? "react" : "node";
+};
+// Wrapper to generate a question with controlled order
+export const generateControlledQuestion = async (difficulty, askedQuestions = []) => {
+  const category = getNextCategory(difficulty, askedQuestions);
+
+  const question = await generateQuestion(
+    difficulty,
+    category,
+    askedQuestions.map(q => q.question) // pass already asked questions
+  );
+
+  return {
+    question,
+    difficulty,
+    category
+  };
+};
 
 // Helper function to calculate similarity between two strings
 const calculateSimilarity = (str1, str2) => {

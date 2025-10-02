@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Send, TrendingUp } from 'lucide-react';
 import { 
@@ -71,7 +71,7 @@ const ChatInterface = () => {
         dispatch(setInterviewState(INTERVIEW_STATES.NOT_STARTED));
         dispatch(addMessage({
           type: MESSAGE_TYPES.BOT,
-          content: `Perfect! All details collected.\n\n📧 Email: ${currentCandidate.email}\n📞 Phone: ${currentCandidate.phone}\n\nReady to start your Full Stack Developer interview?`,
+          content: `Perfect! All details collected.\n\n📝 Name: ${currentCandidate.name}\n📧 Email: ${currentCandidate.email}\n📞 Phone: ${currentCandidate.phone}\n\nReady to start your Full Stack Developer interview?`,
           timestamp: Date.now()
         }));
         dispatch(addMessage({
@@ -106,182 +106,178 @@ const ChatInterface = () => {
     await loadNextQuestion();
   };
 
-  const loadNextQuestion = async () => {
-    if (questionIndex >= 6) {
-      await finishInterview();
-      return;
-    }
+  // const loadNextQuestion = async () => {
+  //   if (questionIndex >= 6) {
+  //     await finishInterview();
+  //     return;
+  //   }
 
-    // Get difficulty and category from QUESTION_CATEGORIES
-    const { difficulty, category } = QUESTION_CATEGORIES[questionIndex];
+  //   // Get difficulty and category from QUESTION_CATEGORIES
+  //   const { difficulty, category } = QUESTION_CATEGORIES[questionIndex];
     
-    const technologyName = category === 'react' ? 'React.js' : 'Node.js';
-    
-    dispatch(addMessage({
-      type: MESSAGE_TYPES.SYSTEM,
-      content: `🤔 Generating your next ${technologyName} question...`,
-      timestamp: Date.now()
-    }));
-
-    try {
-      // Get ALL previously asked questions from current candidate
-      const previousQuestions = currentCandidate.answers?.map(a => a.question) || [];
-      
-      const questionText = await generateQuestion(difficulty, category, previousQuestions);
-      
-      const question = {
-        text: questionText,
-        difficulty,
-        category,
-        index: questionIndex + 1,
-        maxTime: QUESTION_TIMERS[difficulty]
-      };
-
-      dispatch(setCurrentQuestion(question));
-      dispatch(setTimer(QUESTION_TIMERS[difficulty]));
-      dispatch(setIsTimerActive(true));
-      
-      dispatch(addMessage({
-        type: MESSAGE_TYPES.BOT,
-        content: `**Question ${questionIndex + 1}/6** [${difficulty} - ${technologyName}]\n\n${questionText}`,
-        timestamp: Date.now(),
-        difficulty
-      }));
-      dispatch(addMessage({
-        type: MESSAGE_TYPES.SYSTEM,
-        content: `⏰ You have ${QUESTION_TIMERS[difficulty]} seconds to answer. Timer starts now!`,
-        timestamp: Date.now()
-      }));
-    } catch (error) {
-      console.error('Error loading question:', error);
-      dispatch(addMessage({
-        type: MESSAGE_TYPES.SYSTEM,
-        content: '❌ Error generating question. Please try again.',
-        timestamp: Date.now()
-      }));
-    }
-  };
-
-  // const submitAnswer = async (answer) => {
-  //   dispatch(setIsTimerActive(false));
-  //   const timeTaken = QUESTION_TIMERS[currentQuestion.difficulty] - useSelector(state => state.interview.timer);
+  //   const technologyName = category === 'react' ? 'React.js' : 'Node.js';
     
   //   dispatch(addMessage({
   //     type: MESSAGE_TYPES.SYSTEM,
-  //     content: '⏳ Evaluating your answer... Please wait.',
+  //     content: `🤔 Generating your next ${technologyName} question...`,
   //     timestamp: Date.now()
   //   }));
 
   //   try {
-  //     const { score, feedback } = await scoreAnswer(
-  //       currentQuestion.text,
-  //       answer,
-  //       currentQuestion.difficulty
-  //     );
-
-  //     const answerData = {
-  //       question: currentQuestion.text,
-  //       answer,
-  //       difficulty: currentQuestion.difficulty,
-  //       category: currentQuestion.category,
-  //       score,
-  //       feedback,
-  //       timeTaken,
-  //       timestamp: Date.now()
+  //     // Get ALL previously asked questions from current candidate
+  //     const previousQuestions = currentCandidate.answers?.map(a => a.question) || [];
+      
+  //     const questionText = await generateQuestion(difficulty, category, previousQuestions);
+      
+  //     const question = {
+  //       text: questionText,
+  //       difficulty,
+  //       category,
+  //       index: questionIndex + 1,
+  //       maxTime: QUESTION_TIMERS[difficulty]
   //     };
 
-  //     dispatch(addAnswerToCurrentCandidate(answerData));
-
-  //     const maxScore = currentQuestion.difficulty === 'Easy' ? 10 : currentQuestion.difficulty === 'Medium' ? 15 : 20;
-  //     const percentage = Math.round((score / maxScore) * 100);
+  //     dispatch(setCurrentQuestion(question));
+  //     dispatch(setTimer(QUESTION_TIMERS[difficulty]));
+  //     dispatch(setIsTimerActive(true));
       
   //     dispatch(addMessage({
-  //       type: MESSAGE_TYPES.SYSTEM,
-  //       content: `✅ Score: ${score}/${maxScore} (${percentage}%)\n\n💬 ${feedback}`,
-  //       timestamp: Date.now()
+  //       type: MESSAGE_TYPES.BOT,
+  //       content: `**Question ${questionIndex + 1}/6** [${difficulty} - ${technologyName}]\n\n${questionText}`,
+  //       timestamp: Date.now(),
+  //       difficulty
   //     }));
-
-  //     dispatch(setQuestionIndex(questionIndex + 1));
-  //     dispatch(setCurrentQuestion(null));
-
-  //     setTimeout(() => {
-  //       loadNextQuestion();
-  //     }, 2000);
-  //   } catch (error) {
-  //     console.error('Error scoring answer:', error);
   //     dispatch(addMessage({
   //       type: MESSAGE_TYPES.SYSTEM,
-  //       content: '❌ Error evaluating answer. Moving to next question.',
+  //       content: `⏰ You have ${QUESTION_TIMERS[difficulty]} seconds to answer. Timer starts now!`,
   //       timestamp: Date.now()
   //     }));
-  //     dispatch(setQuestionIndex(questionIndex + 1));
-  //     dispatch(setCurrentQuestion(null));
-  //     setTimeout(() => loadNextQuestion(), 2000);
+  //   } catch (error) {
+  //     console.error('Error loading question:', error);
+  //     dispatch(addMessage({
+  //       type: MESSAGE_TYPES.SYSTEM,
+  //       content: '❌ Error generating question. Please try again.',
+  //       timestamp: Date.now()
+  //     }));
   //   }
   // };
-  const submitAnswer = async (answer) => {
-  dispatch(setIsTimerActive(false));
-  const timeTaken = QUESTION_TIMERS[currentQuestion.difficulty] - timer;
+  const loadNextQuestion = async (index = questionIndex) => {
+  if (index >= QUESTION_CATEGORIES.length) {
+    await finishInterview();
+    return;
+  }
+
+  const { difficulty, category } = QUESTION_CATEGORIES[index];
+  const technologyName = category === 'react' ? 'React.js' : 'Node.js';
 
   dispatch(addMessage({
     type: MESSAGE_TYPES.SYSTEM,
-    content: '⏳ Evaluating your answer... Please wait.',
+    content: `🤔 Generating your next ${technologyName} question...`,
     timestamp: Date.now()
   }));
 
   try {
-    const { score, feedback } = await scoreAnswer(
-      currentQuestion.text,
-      answer,
-      currentQuestion.difficulty
-    );
+    // Collect previously asked questions (avoid duplicates)
+    const previousQuestions = currentCandidate.answers?.map(a => a.question) || [];
 
-    const answerData = {
-      question: currentQuestion.text,
-      answer,
-      difficulty: currentQuestion.difficulty,
-      category: currentQuestion.category,
-      score,
-      feedback,
-      timeTaken,
-      timestamp: Date.now()
+    // Generate new question text
+    const questionText = await generateQuestion(difficulty, category, previousQuestions);
+
+    const question = {
+      text: questionText,
+      difficulty,
+      category,
+      index: index + 1, // use passed index
+      maxTime: QUESTION_TIMERS[difficulty]
     };
 
-    dispatch(addAnswerToCurrentCandidate(answerData));
+    // Save question in store
+    dispatch(setCurrentQuestion(question));
+    dispatch(setTimer(QUESTION_TIMERS[difficulty]));
+    dispatch(setIsTimerActive(true));
 
-    const maxScore =
-      currentQuestion.difficulty === 'Easy'
-        ? 10
-        : currentQuestion.difficulty === 'Medium'
-        ? 15
-        : 20;
-
-    const percentage = Math.round((score / maxScore) * 100);
-
+    // Bot message with question
     dispatch(addMessage({
-      type: MESSAGE_TYPES.SYSTEM,
-      content: `✅ Score: ${score}/${maxScore} (${percentage}%)\n\n💬 ${feedback}`,
-      timestamp: Date.now()
+      type: MESSAGE_TYPES.BOT,
+      content: `**Question ${index + 1}/6** [${difficulty} - ${technologyName}]\n\n${questionText}`,
+      timestamp: Date.now(),
+      difficulty
     }));
 
-    dispatch(setQuestionIndex(questionIndex + 1));
-    dispatch(setCurrentQuestion(null));
-
-    setTimeout(() => {
-      loadNextQuestion();
-    }, 2000);
+    // System message with timer info
+    dispatch(addMessage({
+      type: MESSAGE_TYPES.SYSTEM,
+      content: `⏰ You have ${QUESTION_TIMERS[difficulty]} seconds to answer. Timer starts now!`,
+      timestamp: Date.now()
+    }));
   } catch (error) {
-    console.error('Error scoring answer:', error);
+    console.error('Error loading question:', error);
     dispatch(addMessage({
       type: MESSAGE_TYPES.SYSTEM,
-      content: '❌ Error evaluating answer. Moving to next question.',
+      content: '❌ Error generating question. Please try again.',
       timestamp: Date.now()
     }));
-    dispatch(setQuestionIndex(questionIndex + 1));
-    dispatch(setCurrentQuestion(null));
-    setTimeout(() => loadNextQuestion(), 2000);
   }
 };
+
+
+  const submitAnswer = async (answer) => {
+    dispatch(setIsTimerActive(false));
+     const timeTaken = QUESTION_TIMERS[currentQuestion.difficulty] - timer;
+    dispatch(addMessage({
+      type: MESSAGE_TYPES.SYSTEM,
+      content: '⏳ Evaluating your answer... Please wait.',
+      timestamp: Date.now()
+    }));
+
+    try {
+      const { score, feedback } = await scoreAnswer(
+        currentQuestion.text,
+        answer,
+        currentQuestion.difficulty
+      );
+
+      const answerData = {
+        question: currentQuestion.text,
+        answer,
+        difficulty: currentQuestion.difficulty,
+        category: currentQuestion.category,
+        score,
+        feedback,
+        timeTaken,
+        timestamp: Date.now()
+      };
+
+      dispatch(addAnswerToCurrentCandidate(answerData));
+
+      const maxScore = currentQuestion.difficulty === 'Easy' ? 10 : currentQuestion.difficulty === 'Medium' ? 15 : 20;
+      const percentage = Math.round((score / maxScore) * 100);
+      
+      dispatch(addMessage({
+        type: MESSAGE_TYPES.SYSTEM,
+        content: `✅ Score: ${score}/${maxScore} (${percentage}%)\n\n💬 ${feedback}`,
+        timestamp: Date.now()
+      }));
+
+      const nextIndex = questionIndex + 1;
+      dispatch(setQuestionIndex(nextIndex));
+      dispatch(setCurrentQuestion(null));
+
+      setTimeout(() => {
+        loadNextQuestion(nextIndex); // 👈 pass it in directly
+      }, 2000);
+    } catch (error) {
+      console.error('Error scoring answer:', error);
+      dispatch(addMessage({
+        type: MESSAGE_TYPES.SYSTEM,
+        content: '❌ Error evaluating answer. Moving to next question.',
+        timestamp: Date.now()
+      }));
+      dispatch(setQuestionIndex(questionIndex + 1));
+      dispatch(setCurrentQuestion(null));
+      setTimeout(() => loadNextQuestion(), 2000);
+    }
+  };
 
   const handleTimeUp = () => {
     dispatch(addMessage({
