@@ -71,7 +71,7 @@ const ChatInterface = () => {
         dispatch(setInterviewState(INTERVIEW_STATES.NOT_STARTED));
         dispatch(addMessage({
           type: MESSAGE_TYPES.BOT,
-          content: `Perfect! All details collected.\n\n📝 Name: ${currentCandidate.name}\n📧 Email: ${currentCandidate.email}\n📞 Phone: ${currentCandidate.phone}\n\nReady to start your Full Stack Developer interview?`,
+          content: `Perfect! All details collected.\n\n📧 Email: ${currentCandidate.email}\n📞 Phone: ${currentCandidate.phone}\n\nReady to start your Full Stack Developer interview?`,
           timestamp: Date.now()
         }));
         dispatch(addMessage({
