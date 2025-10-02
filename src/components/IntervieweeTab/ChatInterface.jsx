@@ -14,7 +14,7 @@ import {
   setCollectingField,
   setMissingFields
 } from '../../redux/slices/interviewSlice';
-import { , addCandidate } from '../../redux/slices/candidateSlice';
+import { addCandidate } from '../../redux/slices/candidateSlice';
 import { generateQuestion, scoreAnswer, generateFinalSummary } from '../../services/aiService';
 import { clearCurrentSession } from '../../services/storageService';
 import { MESSAGE_TYPES, INTERVIEW_STATES, QUESTION_TIMERS, QUESTION_CATEGORIES, DIFFICULTY_COLORS } from '../../utils/constants';
